@@ -1,5 +1,9 @@
-version: 1.0.0
+version: 1.1.0
 history:
+  1.1.0:
+    date: '2023-04-13'
+    title: 'Select theme'
+    description: 'Add option (none) in selectbox to try out themes.'
   1.0.0:
     date: '2023-04-12'
     title: 'First version'

@@ -6,12 +6,22 @@ class PluginBootstrapBootswatch_v523{
      * Set other theme in session via querystring.
      */
     if(wfRequest::get('bootstrap_bootswatch_v523_theme')){
-      /**
-       * Check if the theme exist.
-       */
-      $availible = wfSettings::getSettings('/plugin/bootstrap/bootswatch_v523/theme/availible.yml');
-      if(array_search(wfRequest::get('bootstrap_bootswatch_v523_theme'), $availible)!==false){
-        $_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme'] = wfRequest::get('bootstrap_bootswatch_v523_theme');
+      if(wfRequest::get('bootstrap_bootswatch_v523_theme')=='(none)'){
+        /**
+         * unset
+         */
+        unset($_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme']);
+      }else{
+        /**
+         * Check if the theme exist.
+         */
+        $availible = wfSettings::getSettings('/plugin/bootstrap/bootswatch_v523/theme/availible.yml');
+        if(array_search(wfRequest::get('bootstrap_bootswatch_v523_theme'), $availible)!==false){
+          /**
+           * Set in session. 
+           */
+          $_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme'] = wfRequest::get('bootstrap_bootswatch_v523_theme');
+        }
       }
     }
     /**
