@@ -1,5 +1,9 @@
-version: 1.1.1
+version: 1.1.2
 history:
+  1.1.2:
+    date: '2023-11-28'
+    title: Session
+    description: 'Retrieve session data failed to selectbox.'
   1.1.1:
     date: '2023-09-11'
     title: Versions

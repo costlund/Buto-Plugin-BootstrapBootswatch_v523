@@ -45,7 +45,9 @@ class PluginBootstrapBootswatch_v523{
     /**
      * Set current theme to pic upp in selectbox widget.
      */
-    wfArray::set($GLOBALS, 'sys/settings/plugin/bootstrap/bootswatch_v523/current_theme', $data->get('data/theme'));
+    if(!wfUser::getSession()->get('plugin/bootstrap/bootswatch_v523/theme')){
+      wfUser::setSession('plugin/bootstrap/bootswatch_v523/theme', $data->get('data/theme'));
+    }
     /**
      * Create element and render.
      */
@@ -71,7 +73,7 @@ class PluginBootstrapBootswatch_v523{
     /**
      * Current theme.
      */
-    $current_theme = wfArray::get($GLOBALS, 'sys/settings/plugin/bootstrap/bootswatch_v523/current_theme');
+    $current_theme = wfUser::getSession()->get('plugin/bootstrap/bootswatch_v523/theme');
     /**
      * Create select.
      */
