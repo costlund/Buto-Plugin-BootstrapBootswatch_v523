@@ -1,5 +1,9 @@
-version: 1.1.2
+version: 1.2.0
 history:
+  1.2.0:
+    date: '2023-11-28'
+    title: Save in db
+    description: 'Add save in db when user change theme.'
   1.1.2:
     date: '2023-11-28'
     title: Session

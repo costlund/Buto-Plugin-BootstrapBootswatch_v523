@@ -61,3 +61,22 @@ data:
 
 H-tags color.
 
+## Save in db
+### Schema
+- /plugin/bootstrap/bootswatch_v523/mysql/schema.yml
+
+### Settings
+````
+plugin:
+  bootstrap:
+    bootswatch_v523:
+      mysql: 'yml:/../buto_data/theme/sit/drillen/mysql.yml'
+      enabled: true
+````
+````
+events:
+  signin:
+    -
+      plugin: 'bootstrap/bootswatch_v523'
+      method: 'signin'
+````

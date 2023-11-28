@@ -1,0 +1,25 @@
+db_select_one:
+  sql: |
+    select
+    account_id
+    ,theme
+    from account_bootswatch
+    where account_id='[user_id]'
+  select:
+    - account_id
+    - theme
+db_insert_one:
+  sql: |
+    insert into account_bootswatch (account_id, created_by) values ('[user_id]', '[user_id]')
+db_update_one:
+  sql: |
+    update account_bootswatch set
+    theme=?
+    ,updated_at=now()
+    ,updated_by='[user_id]'
+    where account_id='[user_id]'
+  params:
+    -
+      type: s
+      value: rs:theme
+

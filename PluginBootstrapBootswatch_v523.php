@@ -1,37 +1,97 @@
 <?php
 class PluginBootstrapBootswatch_v523{
+  private $mysql;
+  private $data;
+  function __construct(){
+    wfPlugin::includeonce('wf/mysql');
+    $this->mysql = new PluginWfMysql();
+    $this->data = wfPlugin::getPluginSettings('bootstrap/bootswatch_v523', true);
+  
+  }
+  private function db_open(){
+    $this->mysql->open($this->data->get('mysql'));
+  }
+  private function db_select_one(){
+    $this->db_open();
+    $sql = new PluginWfYml(__DIR__.'/mysql/sql.yml', __FUNCTION__);
+    $this->mysql->execute($sql->get());
+    $rs = $this->mysql->getOne(array('sql' => $sql->get()));
+    return $rs;
+  }
+  private function db_insert_one(){
+    $this->db_open();
+    $sql = new PluginWfYml(__DIR__.'/mysql/sql.yml', __FUNCTION__);
+    $this->mysql->execute($sql->get());
+    return null;
+  }
+  private function db_update_one($theme){
+    /**
+     * 
+     */
+    if(!wfUser::hasRole('client') || !$this->data->get('mysql')){
+      return null;
+    }
+    /**
+     * 
+     */
+    $this->db_open();
+    $sql = new PluginWfYml(__DIR__.'/mysql/sql.yml', __FUNCTION__);
+    $sql->setByTag(array('theme' => $theme));
+    $this->mysql->execute($sql->get());
+    return null;
+  }
   public static function widget_include($data){
     $data = new PluginWfArray($data);
+    $self = new PluginBootstrapBootswatch_v523();
     /**
      * Set other theme in session via querystring.
      */
     if(wfRequest::get('bootstrap_bootswatch_v523_theme')){
-      if(wfRequest::get('bootstrap_bootswatch_v523_theme')=='(none)'){
+      /**
+       * 
+       */
+      if(wfUser::hasRole('client') && $self->data->get('mysql')){
+        $rs = $self->db_select_one();
+        if(!$rs->get('account_id')){
+          $self->db_insert_one();
+        }
+      }
+      /**
+       * 
+       */
+      if(wfRequest::get('bootstrap_bootswatch_v523_theme')=='(default)'){
         /**
          * unset
          */
-        unset($_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme']);
+        wfUser::unsetSession('plugin/bootstrap/bootswatch_v523/theme');
+        /**
+         * 
+         */
+        $self->db_update_one('');
       }else{
         /**
          * Check if the theme exist.
          */
-        $availible = wfSettings::getSettings('/plugin/bootstrap/bootswatch_v523/theme/availible.yml');
-        if(array_search(wfRequest::get('bootstrap_bootswatch_v523_theme'), $availible)!==false){
+        if($self->theme_availible(wfRequest::get('bootstrap_bootswatch_v523_theme'))){
           /**
            * Set in session. 
            */
-          $_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme'] = wfRequest::get('bootstrap_bootswatch_v523_theme');
+          wfUser::setSession('plugin/bootstrap/bootswatch_v523/theme', wfRequest::get('bootstrap_bootswatch_v523_theme'));
+          /**
+           * 
+           */
+           $self->db_update_one(wfRequest::get('bootstrap_bootswatch_v523_theme'));
         }
       }
     }
     /**
      * Set theme.
      */
-    if(isset($_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme'])){
+    if(wfUser::getSession()->get('plugin/bootstrap/bootswatch_v523/theme')){
       /**
        * If set in Session.
        */
-      $data->set('data/theme', $_SESSION['plugin']['bootstrap']['bootswatch_v523']['theme']);
+      $data->set('data/theme', wfUser::getSession()->get('plugin/bootstrap/bootswatch_v523/theme'));
     }elseif(!$data->get('data/theme')){
       /**
        * If not set in widget we set Cerulean as default theme.
@@ -81,7 +141,6 @@ class PluginBootstrapBootswatch_v523{
     $select->set('attribute/onchange', "location.href='/".$settings->get('default_class')."/".$settings->get('default_method')."/bootstrap_bootswatch_v523_theme/'+this.options[this.selectedIndex].text;");
     $availible = wfSettings::getSettings('/plugin/bootstrap/bootswatch_v523/theme/availible.yml');
     $option = array();
-    $option[] = wfDocument::createHtmlElement('option', '', array('value' => ''));
     foreach ($availible as $key => $value) {
       $attribute = array('value' => $value);
       if($value == $current_theme){
@@ -94,5 +153,21 @@ class PluginBootstrapBootswatch_v523{
      * Render.
      */
     wfDocument::renderElement(array($select->get()));
+  }
+  public function event_signin(){
+    if(wfUser::hasRole('client') && $this->data->get('mysql')){
+      $rs = $this->db_select_one();
+      if($rs->get('theme') && $this->theme_availible($rs->get('theme'))){
+        wfUser::setSession('plugin/bootstrap/bootswatch_v523/theme', $rs->get('theme'));
+      }
+    }
+  }
+  private function theme_availible($theme){
+    $availible = wfSettings::getSettings('/plugin/bootstrap/bootswatch_v523/theme/availible.yml');
+    if(array_search($theme, $availible)!==false){
+      return true;
+    }else{
+      return false;
+    }
   }
 }
